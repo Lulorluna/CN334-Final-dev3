@@ -25,38 +25,49 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col">
+      {/* Navbar */}
       <header className="fixed top-0 w-full bg-[#fdf6e3] shadow-md z-50">
-        <div className="container mx-auto flex items-center justify-between p-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image src="/images/logo.png" width={40} height={40} alt="Logo" />
-            <span className="font-bold text-gray-800">Meal of Hope</span>
-          </Link>
-          <nav className="flex gap-6">
-            {['Home', 'About Us', 'Product'].map((text, idx) => {
-              const href = text === 'Home' ? '/' : text === 'About Us' ? '/about' : '/product-list';
-              return (
-                <Link key={idx} href={href} className="relative text-gray-800 font-semibold group">
-                  <span className="relative inline-block px-1">
-                    {text}
-                    <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-yellow-500 group-hover:w-full transition-all duration-300"></span>
-                  </span>
-                </Link>
-              );
-            })}
-          </nav>
+        <div className="container mx-auto flex items-center justify-between px-4 py-3">
+          {/* Logo + Links */}
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center group">
+              <img src="/images/logo.png" width={40} height={40} alt="Logo" />
+              <span className="ml-2 relative text-xl font-bold text-gray-800 inline-block px-1">
+                Meal of Hope
+                <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-yellow-500 group-hover:w-full transition-all duration-300"></span>
+              </span>
+            </Link>
+            <nav className="flex gap-6">
+              {['Home', 'About Us', 'Product'].map((text, idx) => {
+                const href = text === 'Home' ? '/' : text === 'About Us' ? '/about' : '/product-list';
+                return (
+                  <Link key={idx} href={href} className="relative text-gray-800 font-semibold group px-1">
+                    <span className="relative inline-block">
+                      {text}
+                      <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-yellow-500 group-hover:w-full transition-all duration-300"></span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+          {/* Cart & Sign In */}
           <div className="flex gap-4">
-            <Link href="/order" className="relative p-2 border rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out">🛒</Link>
+            <Link href="/order" className="p-2 border rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out">🛒</Link>
             <Link href="/login" className="bg-yellow-400 hover:bg-yellow-500 transition-colors duration-200 ease-in-out text-white font-bold px-4 py-2 rounded-full">Sign In</Link>
           </div>
         </div>
       </header>
 
+      {/* Spacer */}
       <div className="h-20" />
 
+      {/* Banner */}
       <section className="relative h-[600px] w-full">
         <Image src="/images/banner.jpg" alt="Banner" fill className="object-cover" />
       </section>
 
+      {/* Promotion Section */}
       <section className="container mx-auto px-4 mt-10">
         <h3 className="text-2xl font-bold mb-6">Promotion</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -72,6 +83,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Category Section */}
       <section className="container mx-auto px-4 mt-12">
         <h3 className="text-2xl font-bold mb-6">Category</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 justify-items-center">
@@ -90,6 +102,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Reviews Section */}
       <section className="container mx-auto px-4 mt-12 mb-12">
         <h3 className="text-2xl font-bold mb-6">Reviews</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -102,6 +115,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Footer */}
       <footer className="bg-gray-100 py-6">
         <div className="flex justify-center gap-2 mb-4">
           {[1, 2, 3, 4].map((_, idx) => (

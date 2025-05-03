@@ -65,18 +65,27 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-yellow-50 to-yellow-200 p-4">
-            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-6 space-y-6">
-                <div className="flex flex-col items-center">
-                    <Image src="/images/logo.png" width={72} height={72} alt="Logo" />
-                    <h2 className="mt-4 text-3xl font-extrabold text-gray-900">Welcome Back</h2>
-                    <p className="mt-2 text-gray-600">Sign in to continue</p>
-                </div>
-                {error && <p className="text-red-500 text-center">{error}</p>}
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-                        <input
+        
+        <div className="login-page">
+        {/* 👇 ส่วน background slideshow ที่คุณเขียน CSS ไว้ */}
+        <div className="slideshow-container">
+            <div className="slide bg1"></div>
+            <div className="slide bg2"></div>
+            <div className="slide bg3"></div>
+        </div>
+
+        {/* 👇 กล่อง login */}
+        <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl p-8 space-y-6">
+            <div className="flex flex-col items-center">
+                <Image src="/images/logo.png" width={72} height={72} alt="Logo" />
+                <h2 className="mt-4 text-3xl font-extrabold text-gray-900">Welcome Back</h2>
+                <p className="mt-2 text-gray-600">Sign in to continue</p>
+            </div>
+            {error && <p className="text-red-500 text-center">{error}</p>}
+            <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                    <input
                             name="username"
                             id="username"
                             type="text"

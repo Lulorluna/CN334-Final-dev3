@@ -1,17 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
+import ProductModal from '../productmodel'; // ต้องตั้งชื่อไฟล์ว่า productmodel.js
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { products } from './datatest'; // ปรับ path ตามที่คุณมี
+import { products } from './datatest'; 
 
 export default function ProductListPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category');
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const categories = [
     { label: 'Raw', icon: '/icons/raw.png' },
@@ -29,7 +30,8 @@ export default function ProductListPage() {
   }, [searchParams]);
 
   const handleSelectProduct = (productId) => {
-    router.push(`/Product-Detail?product=${productId}`);
+    const product = products.find(p => String(p.id) === productId);
+    setSelectedProduct(product); // เปิด modal แทน navigate
   };
 
   const filteredProducts = products.filter((item) => {
@@ -150,6 +152,11 @@ export default function ProductListPage() {
           )}
         </section>
       </main>
+
+      {/* Popup Modal */}
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-100 py-6">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -45,14 +45,133 @@ export default function ProfilePage() {
     { name: 'Payment', href: '/payment', tab: 'payment', active: activeTab === 'payment' },
   ];
 
+  // Particle Animation Component
+  const ParticleBackground = () => {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let mouse = { x: null, y: null };
+
+      const resizeCanvas = () => {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      };
+
+      const createParticle = (x, y) => {
+        return {
+          x,
+          y,
+          size: Math.random() * 2 + 1,
+          speedX: Math.random() * 0.5 - 0.25,
+          speedY: Math.random() * 0.5 - 0.25,
+        };
+      };
+
+      const initParticles = () => {
+        particles = [];
+        for (let i = 0; i < 50; i++) {
+          particles.push(
+            createParticle(
+              Math.random() * canvas.width,
+              Math.random() * canvas.height
+            )
+          );
+        }
+      };
+
+      const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((particle, i) => {
+          particle.x += particle.speedX;
+          particle.y += particle.speedY;
+
+          if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+          if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          ctx.fillStyle = '#f4d03f';
+          ctx.globalAlpha = 0.6;
+          ctx.fill();
+
+          if (mouse.x && mouse.y) {
+            const dx = mouse.x - particle.x;
+            const dy = mouse.y - particle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 100) {
+              ctx.beginPath();
+              ctx.moveTo(particle.x, particle.y);
+              ctx.lineTo(mouse.x, mouse.y);
+              ctx.strokeStyle = '#f4d03f';
+              ctx.globalAlpha = 0.2;
+              ctx.stroke();
+            }
+          }
+
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particle.x - particles[j].x;
+            const dy = particle.y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 100) {
+              ctx.beginPath();
+              ctx.moveTo(particle.x, particle.y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = '#f4d03f';
+              ctx.globalAlpha = 0.1;
+              ctx.stroke();
+            }
+          }
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(animate);
+      };
+
+      const handleMouseMove = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+      };
+
+      window.addEventListener('resize', resizeCanvas);
+      canvas.addEventListener('mousemove', handleMouseMove);
+      resizeCanvas();
+      initParticles();
+      animate();
+
+      return () => {
+        window.removeEventListener('resize', resizeCanvas);
+        canvas.removeEventListener('mousemove', handleMouseMove);
+      };
+    }, []);
+
+    return (
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+      />
+    );
+  };
+
   return (
-    <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-yellow-50 via-amber-100 to-yellow-200 animate-gradient">
-      {/* Background with Custom Image */}
+    <div className="flex flex-col min-h-screen bg-[#fdf6e3] animate-fade-in">
+      {/* Google Fonts */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+      `}</style>
+
+      {/* Background with Custom Image or Gradient */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+        className="fixed inset-0 bg-cover bg-center transition-opacity duration-300 z-0"
+        style={{
+          backgroundImage: backgroundImage
+            ? `url(${backgroundImage})`
+            : 'linear-gradient(to bottom, #f4d03f, #fdf6e3)',
+        }}
       >
-        <div className="absolute inset-0 bg-white/60 backdrop-blur-md z-0"></div>
+        <div className="absolute inset-0 bg-[#8b4513]/10"></div>
       </div>
 
       {/* Background Upload */}
@@ -61,153 +180,167 @@ export default function ProfilePage() {
           type="file"
           accept="image/*"
           onChange={handleBackgroundUpload}
-          className="bg-white/80 backdrop-blur-md p-2 rounded-lg border-2 border-amber-600 text-amber-800 font-semibold hover:bg-amber-100 transition-all duration-300"
+          className="p-2 border border-[#8b4513] rounded bg-[#fff8e1] text-[#8b4513] file:bg-[#f4d03f] file:text-[#8b4513] file:border-none file:rounded file:px-4 file:py-2"
         />
       </div>
 
-      {/* Navbar (Unchanged) */}
-      <header className="fixed top-0 w-full bg-[#fdf6e3] shadow-md z-50">
+      {/* Navbar */}
+      <header className="fixed top-0 w-full bg-[#fff8e1] shadow-md z-50">
         <div className="container mx-auto flex items-center justify-between p-4">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/images/logo.png" width={40} height={40} alt="Logo" />
-            <span className="font-bold text-gray-800">Meal of Hope</span>
+            <span className="font-bold text-[#8b4513]">Meal of Hope</span>
           </Link>
           <nav className="flex gap-6">
             {['Home', 'About Us', 'Product'].map((text, idx) => {
               const href = text === 'Home' ? '/' : text === 'About Us' ? '/about' : '/product-list';
               return (
-                <Link key={idx} href={href} className="relative text-gray-800 font-semibold group">
-                  <span className="relative inline-block px-1">
+                <Link
+                  key={idx}
+                  href={href}
+                  className="relative text-[#8b4513] font-semibold group"
+                >
+                  <span>
                     {text}
-                    <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-yellow-500 group-hover:w-full transition-all duration-300"></span>
+                    <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-[#f4d03f] group-hover:w-full transition-all duration-300"></span>
                   </span>
                 </Link>
               );
             })}
           </nav>
           <div className="flex gap-4">
-            <Link href="/order" className="relative p-2 border rounded-full hover:bg-gray-100 transition">🛒</Link>
-            <Link href="/login" className="bg-yellow-400 hover:bg-yellow-500 transition text-white font-bold px-4 py-2 rounded-full">Sign In</Link>
+            <Link
+              href="/order"
+              className="p-2 border border-[#8b4513] rounded-full hover:bg-[#f4d03f] transition-colors duration-200"
+            >
+              🛒
+            </Link>
+            <Link
+              href="/login"
+              className="bg-[#f4d03f] hover:bg-[#e6c02f] text-[#8b4513] font-bold px-4 py-2 rounded-full transition-colors duration-200"
+            >
+              Sign In
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* Spacer */}
-      <div className="h-24" />
-
       {/* Main Content */}
-      <div className="flex flex-1 relative z-10">
+      <div className="flex flex-1 relative z-10 pt-24 pb-32">
         {/* Sidebar */}
-        <aside className="w-64 bg-white/80 backdrop-blur-xl shadow-2xl rounded-r-3xl p-6 fixed h-[calc(100vh-200px-24px)] top-24 border-r-4 border-gradient-to-r from-yellow-400 to-amber-600 animate-fade-in-left">
-          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-amber-800 mb-8">My Account</h2>
-          <nav className="space-y-4">
+        <aside className="w-64 bg-[#fff8e1] p-6 fixed h-[calc(100vh-6rem)] top-24 border-r border-[#8b4513]/30">
+          <h2 className="text-2xl font-semibold text-[#8b4513] mb-6">My Account</h2>
+          <nav className="space-y-3">
             {navLinks.map((link, idx) => (
               <button
                 key={idx}
                 onClick={() => setActiveTab(link.tab)}
-                className={`flex items-center gap-3 p-4 rounded-xl transition-all duration-500 w-full text-left transform hover:scale-105 hover:shadow-lg ${
+                className={`w-full text-left p-3 rounded-lg transition-colors duration-200 ${
                   link.active
-                    ? 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white shadow-xl'
-                    : 'text-gray-700 hover:bg-yellow-100 hover:text-amber-800'
+                    ? 'bg-[#f4d03f] text-[#8b4513] font-semibold'
+                    : 'text-[#8b4513] hover:bg-[#f4d03f]/50'
                 }`}
               >
-                <span className="text-xl">✨</span>
-                <span className="font-semibold text-lg">{link.name}</span>
+                {link.name}
               </button>
             ))}
           </nav>
         </aside>
 
         {/* Form Section */}
-        <main className="flex-1 ml-64 p-8 animate-fade-in-right">
-          <div className="max-w-3xl mx-auto bg-white/90 backdrop-blur-2xl rounded-3xl shadow-2xl p-10 border-2 border-gradient-to-r from-yellow-400 to-amber-600 transition-all duration-700 hover:shadow-3xl hover:scale-[1.01]">
-            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-amber-800 mb-10 uppercase tracking-widest">
+        <main className="flex-1 ml-64 p-6">
+          <div className="max-w-3xl mx-auto bg-[#fff8e1] p-8 border border-[#8b4513]/30 rounded-lg shadow-md">
+            <h1 className="text-3xl font-bold text-[#8b4513] mb-6">
               {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {activeTab === 'account' && (
                 <>
-                  {/* Username & Telephone (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Username *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Username *
+                      </label>
                       <input
                         type="text"
                         name="username"
                         value={formData.account.username}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Telephone *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Telephone *
+                      </label>
                       <input
                         type="tel"
                         name="telephone"
                         value={formData.account.telephone}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
-
-                  {/* Fullname */}
                   <div>
-                    <label className="block text-sm text-amber-600 font-semibold mb-1">Fullname *</label>
+                    <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                      Fullname *
+                    </label>
                     <input
                       type="text"
                       name="fullname"
                       value={formData.account.fullname}
                       onChange={handleChange}
                       required
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                      className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                     />
                   </div>
-
-                  {/* Date of Birth & Sex (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Date of Birth *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Date of Birth *
+                      </label>
                       <input
                         type="date"
                         name="dateOfBirth"
                         value={formData.account.dateOfBirth}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2 relative">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Sex *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Sex *
+                      </label>
                       <select
                         name="sex"
                         value={formData.account.sex}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       >
                         <option value="" disabled></option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                         <option value="other">Other</option>
                       </select>
-                      <span className="absolute right-4 top-12 text-gray-500 pointer-events-none">▼</span>
                     </div>
                   </div>
-
-                  {/* Email */}
                   <div>
-                    <label className="block text-sm text-amber-600 font-semibold mb-1">Email *</label>
+                    <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                      Email *
+                    </label>
                     <input
                       type="email"
                       name="email"
                       value={formData.account.email}
                       onChange={handleChange}
                       required
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                      className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                     />
                   </div>
                 </>
@@ -215,67 +348,72 @@ export default function ProfilePage() {
 
               {activeTab === 'address' && (
                 <>
-                  {/* Receiver Name */}
                   <div>
-                    <label className="block text-sm text-amber-600 font-semibold mb-1">Receiver Name *</label>
+                    <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                      Receiver Name *
+                    </label>
                     <input
                       type="text"
                       name="receiverName"
                       value={formData.address.receiverName}
                       onChange={handleChange}
                       required
-                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                      className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                     />
                   </div>
-
-                  {/* House Number & Postcode (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">House Number *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        House Number *
+                      </label>
                       <input
                         type="text"
                         name="houseNumber"
                         value={formData.address.houseNumber}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Postcode *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Postcode *
+                      </label>
                       <input
                         type="text"
                         name="postcode"
                         value={formData.address.postcode}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
-
-                  {/* District & Province (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">District *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        District *
+                      </label>
                       <input
                         type="text"
                         name="district"
                         value={formData.address.district}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Province *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Province *
+                      </label>
                       <input
                         type="text"
                         name="province"
                         value={formData.address.province}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
@@ -284,54 +422,59 @@ export default function ProfilePage() {
 
               {activeTab === 'history' && (
                 <>
-                  {/* Customer & Created At (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Customer *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Customer *
+                      </label>
                       <input
                         type="text"
                         name="customer"
                         value={formData.history.customer}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Created At *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Created At *
+                      </label>
                       <input
                         type="date"
                         name="createdAt"
                         value={formData.history.createdAt}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
-
-                  {/* Status & Total Price (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Status *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Status *
+                      </label>
                       <input
                         type="text"
                         name="status"
                         value={formData.history.status}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Total Price *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Total Price *
+                      </label>
                       <input
                         type="text"
                         name="totalPrice"
                         value={formData.history.totalPrice}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
@@ -340,78 +483,80 @@ export default function ProfilePage() {
 
               {activeTab === 'payment' && (
                 <>
-                  {/* Method & Expired (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Method *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Method *
+                      </label>
                       <input
                         type="text"
                         name="method"
                         value={formData.payment.method}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Expired *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Expired *
+                      </label>
                       <input
                         type="month"
                         name="expired"
                         value={formData.payment.expired}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
-
-                  {/* Card No & Holder Name (Side by Side) */}
-                  <div className="flex gap-4">
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Card No *</label>
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Card No *
+                      </label>
                       <input
                         type="text"
                         name="cardNo"
                         value={formData.payment.cardNo}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
-                    <div className="w-1/2">
-                      <label className="block text-sm text-amber-600 font-semibold mb-1">Holder Name *</label>
+                    <div>
+                      <label className="block text-sm font-medium text-[#8b4513] mb-2">
+                        Holder Name *
+                      </label>
                       <input
                         type="text"
                         name="holderName"
                         value={formData.payment.holderName}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
+                        className="w-full p-3 border border-[#8b4513]/50 rounded-lg bg-[#fdf6e3] text-[#8b4513] focus:ring-[#f4d03f] focus:border-[#f4d03f]"
                       />
                     </div>
                   </div>
                 </>
               )}
 
-              {/* Change Password Link (only for Account tab) */}
               {activeTab === 'account' && (
                 <div className="text-right">
                   <Link
                     href="/change-password"
-                    className="text-amber-600 hover:text-amber-800 relative inline-block group"
+                    className="text-[#8b4513] hover:text-[#f4d03f] transition-colors duration-200"
                   >
                     Change Password
-                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gradient-to-r from-yellow-500 to-amber-600 group-hover:w-full transition-all duration-500"></span>
                   </Link>
                 </div>
               )}
 
-              {/* Save Button */}
               <div className="text-right">
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-500 text-white font-bold py-4 px-10 rounded-full shadow-2xl hover:shadow-amber-600/50 transition-all duration-500 transform hover:scale-110 animate-pulse-slow"
+                  className="bg-[#f4d03f] text-[#8b4513] px-6 py-3 rounded-lg hover:bg-[#e6c02f] transition-colors duration-200 font-semibold"
                 >
                   Save
                 </button>
@@ -421,59 +566,112 @@ export default function ProfilePage() {
         </main>
       </div>
 
-      {/* Footer (Unchanged) */}
-      <footer className="relative bg-gray-800/90 py-10 w-full mt-auto border-t-4 border-yellow-500 z-10">
-        <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-r from-yellow-500/20 to-transparent transform -skew-y-3"></div>
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center text-gray-200 mb-8">
-            <span className="text-lg font-semibold">Meal of Hope © 2025</span>
-            <div className="flex gap-6 mt-4 sm:mt-0">
-              <a href="#" className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">📘</a>
-              <a href="#"운동 className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">📸</a>
-              <a href="#" className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">🐦</a>
+      {/* Footer */}
+      <footer className="relative bg-gradient-to-b from-gray-900 to-gray-800 py-6 w-full mt-auto border-t-4 border-[#f4d03f] z-10 overflow-hidden">
+        <ParticleBackground />
+        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-r from-[#f4d03f] via-[#8b4513] to-transparent transform -skew-y-3 shadow-lg"></div>
+        <div className="max-w-6xl mx-auto px-4 relative z-10">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-gray-200 mb-4">
+            <span className="text-xl font-bold font-['Playfair_Display'] tracking-wide animate-glow">
+              Meal of Hope © 2025
+            </span>
+            <div className="flex gap-4 mt-2 sm:mt-0">
+              <a
+                href="#"
+                className="text-gray-200 hover:text-[#f4d03f] transition-all duration-300 transform hover:scale-110 hover:rotate-6 hover:shadow-[0_0_15px_#f4d03f]"
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                </svg>
+              </a>
+              <a
+                href="#"
+                className="text-gray-200 hover:text-[#f4d03f] transition-all duration-300 transform hover:scale-110 hover:rotate-6 hover:shadow-[0_0_15px_#f4d03f]"
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />
+                </svg>
+              </a>
+              <a
+                href="#"
+                className="text-gray-200 hover:text-[#f4d03f] transition-all duration-300 transform hover:scale-110 hover:rotate-6 hover:shadow-[0_0_15px_#f4d03f]"
+              >
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.04c-5.5 0-10 4.5-10 10 0 4.4 3.6 8 8 8.9v-6.3h-2.4v-2.6h2.4v-2c0-2.4 1.5-3.7 3.6-3.7 1 0 1.9.1 2.1.2v2.4h-1.4c-1.1 0-1.3.5-1.3 1.3v1.7h2.6l-.3 2.6h-2.3v6.3c4.4-.9 8-4.5 8-8.9 0-5.5-4.5-10-10-10z" />
+                </svg>
+              </a>
             </div>
           </div>
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center gap-2">
             {[1, 2, 3, 4].map((_, idx) => (
-              <span key={idx} className="w-3 h-3 bg-yellow-500 rounded-full inline-block animate-bounce" style={{ animationDelay: `${idx * 0.1}s` }}></span>
+              <span
+                key={idx}
+                className="w-2 h-2 bg-[#f4d03f] rounded-full inline-block animate-constellation"
+                style={{ animationDelay: `${idx * 0.2}s` }}
+              ></span>
             ))}
           </div>
-          <div className="text-center mt-6">
-            <a href="#" className="text-gray-200 hover:text-yellow-500 transition font-semibold">Back to top ↑</a>
+          <div className="flex justify-center items-center gap-4 mt-4">
+            <a
+              href="#"
+              className="text-gray-200 hover:text-[#f4d03f] transition font-['Playfair_Display'] font-semibold"
+            >
+              Back to top ↑
+            </a>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="bg-[#f4d03f] text-[#8b4513] px-4 py-2 rounded-full font-['Playfair_Display'] font-bold animate-pulse hover:bg-[#e6c02f] transition-all duration-300 shadow-[0_0_10px_#f4d03f]"
+            >
+              Fill the Form Now!
+            </button>
           </div>
         </div>
       </footer>
 
       <style jsx>{`
-        @keyframes gradient {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        @keyframes fadeInLeft {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
         }
-        @keyframes fadeInRight {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
+        @keyframes glow {
+          0%, 100% {
+            text-shadow: 0 0 5px #f4d03f, 0 0 10px #f4d03f;
+          }
+          50% {
+            text-shadow: 0 0 10px #f4d03f, 0 0 20px #f4d03f;
+          }
         }
-        @keyframes pulse-slow {
-          0%, 100% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-          50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        .animate-glow {
+          animation: glow 2s infinite;
         }
-        .animate-gradient {
-          background-size: 200% 200%;
-          animation: gradient 15s ease infinite;
+        @keyframes constellation {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+            opacity: 0.7;
+          }
+          50% {
+            transform: translate(5px, -5px) scale(1.2);
+            opacity: 1;
+          }
         }
-        .animate-fade-in-left {
-          animation: fadeInLeft 0.8s ease-out;
+        .animate-constellation {
+          animation: constellation 1.5s infinite;
         }
-        .animate-fade-in-right {
-          animation: fadeInRight 0.8s ease-out;
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 10px #f4d03f;
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #f4d03f;
+          }
         }
-        .animate-pulse-slow {
-          animation: pulse-slow 2s infinite;
+        .animate-pulse {
+          animation: pulse 2s infinite;
         }
       `}</style>
     </div>

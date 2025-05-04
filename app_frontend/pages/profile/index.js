@@ -12,6 +12,7 @@ export default function ProfilePage() {
     history: { customer: '', status: '', totalPrice: '', createdAt: '' },
     payment: { method: '', cardNo: '', expired: '', holderName: '' },
   });
+  const [backgroundImage, setBackgroundImage] = useState('/images/bg1.jpeg');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +27,17 @@ export default function ProfilePage() {
     console.log('Form submitted for', activeTab, ':', formData[activeTab]);
   };
 
+  const handleBackgroundUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBackgroundImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const navLinks = [
     { name: 'Account', href: '/profile', tab: 'account', active: activeTab === 'account' },
     { name: 'Address', href: '/address', tab: 'address', active: activeTab === 'address' },
@@ -35,9 +47,22 @@ export default function ProfilePage() {
 
   return (
     <div className="relative min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-yellow-50 via-amber-100 to-yellow-200 animate-gradient">
-      {/* Background Particles */}
-      <div className="absolute inset-0 z-0">
-        <div className="particles"></div>
+      {/* Background with Custom Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+        style={{ backgroundImage: `url(${backgroundImage})` }}
+      >
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-md z-0"></div>
+      </div>
+
+      {/* Background Upload */}
+      <div className="relative z-10 p-4">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleBackgroundUpload}
+          className="bg-white/80 backdrop-blur-md p-2 rounded-lg border-2 border-amber-600 text-amber-800 font-semibold hover:bg-amber-100 transition-all duration-300"
+        />
       </div>
 
       {/* Navbar (Unchanged) */}
@@ -68,12 +93,12 @@ export default function ProfilePage() {
       </header>
 
       {/* Spacer */}
-      <div className="h-20" />
+      <div className="h-24" />
 
       {/* Main Content */}
       <div className="flex flex-1 relative z-10">
         {/* Sidebar */}
-        <aside className="w-64 bg-white/80 backdrop-blur-xl shadow-2xl rounded-r-3xl p-6 fixed h-[calc(100vh-200px-20px)] top-20 border-r-4 border-gradient-to-r from-yellow-400 to-amber-600 animate-fade-in-left">
+        <aside className="w-64 bg-white/80 backdrop-blur-xl shadow-2xl rounded-r-3xl p-6 fixed h-[calc(100vh-200px-24px)] top-24 border-r-4 border-gradient-to-r from-yellow-400 to-amber-600 animate-fade-in-left">
           <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-amber-800 mb-8">My Account</h2>
           <nav className="space-y-4">
             {navLinks.map((link, idx) => (
@@ -105,121 +130,85 @@ export default function ProfilePage() {
                 <>
                   {/* Username & Telephone (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Username *</label>
                       <input
                         type="text"
                         name="username"
                         value={formData.account.username}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.account.username ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Username *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Telephone *</label>
                       <input
                         type="tel"
                         name="telephone"
                         value={formData.account.telephone}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.account.telephone ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Telephone *
-                      </label>
                     </div>
                   </div>
 
                   {/* Fullname */}
-                  <div className="relative">
+                  <div>
+                    <label className="block text-sm text-amber-600 font-semibold mb-1">Fullname *</label>
                     <input
                       type="text"
                       name="fullname"
                       value={formData.account.fullname}
                       onChange={handleChange}
                       required
-                      className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                     />
-                    <label
-                      className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                        formData.account.fullname ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                      }`}
-                    >
-                      Fullname *
-                    </label>
                   </div>
 
                   {/* Date of Birth & Sex (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Date of Birth *</label>
                       <input
                         type="date"
                         name="dateOfBirth"
                         value={formData.account.dateOfBirth}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent appearance-none hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.account.dateOfBirth ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Date of Birth *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2 relative">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Sex *</label>
                       <select
                         name="sex"
                         value={formData.account.sex}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent appearance-none hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
                       >
                         <option value="" disabled></option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                         <option value="other">Other</option>
                       </select>
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.account.sex ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Sex *
-                      </label>
-                      <span className="absolute right-4 top-5 text-gray-500">▼</span>
+                      <span className="absolute right-4 top-12 text-gray-500 pointer-events-none">▼</span>
                     </div>
                   </div>
 
                   {/* Email */}
-                  <div className="relative">
+                  <div>
+                    <label className="block text-sm text-amber-600 font-semibold mb-1">Email *</label>
                     <input
                       type="email"
                       name="email"
                       value={formData.account.email}
                       onChange={handleChange}
                       required
-                      className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                     />
-                    <label
-                      className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                        formData.account.email ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                      }`}
-                    >
-                      Email *
-                    </label>
                   </div>
                 </>
               )}
@@ -227,97 +216,67 @@ export default function ProfilePage() {
               {activeTab === 'address' && (
                 <>
                   {/* Receiver Name */}
-                  <div className="relative">
+                  <div>
+                    <label className="block text-sm text-amber-600 font-semibold mb-1">Receiver Name *</label>
                     <input
                       type="text"
                       name="receiverName"
                       value={formData.address.receiverName}
                       onChange={handleChange}
                       required
-                      className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                      className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                     />
-                    <label
-                      className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                        formData.address.receiverName ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                      }`}
-                    >
-                      Receiver Name *
-                    </label>
                   </div>
 
                   {/* House Number & Postcode (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">House Number *</label>
                       <input
                         type="text"
                         name="houseNumber"
                         value={formData.address.houseNumber}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.address.houseNumber ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        House Number *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Postcode *</label>
                       <input
                         type="text"
                         name="postcode"
                         value={formData.address.postcode}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.address.postcode ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Postcode *
-                      </label>
                     </div>
                   </div>
 
                   {/* District & Province (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">District *</label>
                       <input
                         type="text"
                         name="district"
                         value={formData.address.district}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.address.district ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        District *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Province *</label>
                       <input
                         type="text"
                         name="province"
                         value={formData.address.province}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.address.province ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Province *
-                      </label>
                     </div>
                   </div>
                 </>
@@ -327,77 +286,53 @@ export default function ProfilePage() {
                 <>
                   {/* Customer & Created At (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Customer *</label>
                       <input
                         type="text"
                         name="customer"
                         value={formData.history.customer}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.history.customer ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Customer *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Created At *</label>
                       <input
                         type="date"
                         name="createdAt"
                         value={formData.history.createdAt}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent appearance-none hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.history.createdAt ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Created At *
-                      </label>
                     </div>
                   </div>
 
                   {/* Status & Total Price (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Status *</label>
                       <input
                         type="text"
                         name="status"
                         value={formData.history.status}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.history.status ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Status *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Total Price *</label>
                       <input
                         type="text"
                         name="totalPrice"
                         value={formData.history.totalPrice}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.history.totalPrice ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Total Price *
-                      </label>
                     </div>
                   </div>
                 </>
@@ -407,77 +342,53 @@ export default function ProfilePage() {
                 <>
                   {/* Method & Expired (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Method *</label>
                       <input
                         type="text"
                         name="method"
                         value={formData.payment.method}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.payment.method ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Method *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Expired *</label>
                       <input
                         type="month"
                         name="expired"
                         value={formData.payment.expired}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent appearance-none hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent appearance-none hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.payment.expired ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Expired *
-                      </label>
                     </div>
                   </div>
 
                   {/* Card No & Holder Name (Side by Side) */}
                   <div className="flex gap-4">
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Card No *</label>
                       <input
                         type="text"
                         name="cardNo"
                         value={formData.payment.cardNo}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.payment.cardNo ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Card No *
-                      </label>
                     </div>
-                    <div className="relative w-1/2">
+                    <div className="w-1/2">
+                      <label className="block text-sm text-amber-600 font-semibold mb-1">Holder Name *</label>
                       <input
                         type="text"
                         name="holderName"
                         value={formData.payment.holderName}
                         onChange={handleChange}
                         required
-                        className="w-full p-4 pt-6 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 peer bg-transparent hover:shadow-md"
+                        className="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-yellow-500 transition-all duration-500 bg-transparent hover:shadow-md text-gray-800"
                       />
-                      <label
-                        className={`absolute left-4 top-4 text-gray-500 transition-all duration-300 peer-focus:-top-1 peer-focus:left-2 peer-focus:text-sm peer-focus:text-amber-600 peer-focus:bg-white peer-focus:px-2 ${
-                          formData.payment.holderName ? '-top-1 left-2 text-sm text-amber-600 bg-white px-2' : ''
-                        }`}
-                      >
-                        Holder Name *
-                      </label>
                     </div>
                   </div>
                 </>
@@ -563,20 +474,6 @@ export default function ProfilePage() {
         }
         .animate-pulse-slow {
           animation: pulse-slow 2s infinite;
-        }
-        .particles {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 1px, transparent 1px);
-          background-size: 20px 20px;
-          animation: moveParticles 20s linear infinite;
-        }
-        @keyframes moveParticles {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-100px); }
         }
       `}</style>
     </div>

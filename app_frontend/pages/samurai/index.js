@@ -167,7 +167,7 @@ export default function SummarizePage() {
             <span className="text-lg font-semibold">Meal of Hope © 2025</span>
             <div className="flex gap-6 mt-4 sm:mt-0">
               <a href="#" className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">📘</a>
-              <a href="#"운동 className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">📸</a>
+              <a href="#" 운동 className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">📸</a>
               <a href="#" className="text-gray-200 hover:text-yellow-500 transition transform hover:scale-125">🐦</a>
             </div>
           </div>

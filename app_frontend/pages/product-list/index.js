@@ -1,10 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
-import ProductModal from '../productmodel'; // ต้องตั้งชื่อไฟล์ว่า productmodel.js
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { products } from './datatest'; 
+import { products } from './datatest';
 
 export default function ProductListPage() {
   const searchParams = useSearchParams();
@@ -12,7 +11,6 @@ export default function ProductListPage() {
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const categories = [
     { label: 'Raw', icon: '/icons/raw.png' },
@@ -29,29 +27,26 @@ export default function ProductListPage() {
     }
   }, [searchParams]);
 
-  const handleSelectProduct = (productId) => {
-    const product = products.find(p => String(p.id) === productId);
-    setSelectedProduct(product); // เปิด modal แทน navigate
-  };
-
   const filteredProducts = products.filter((item) => {
     const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.caption.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.caption.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-cover bg-no-repeat" style={{ backgroundImage: "url('/images/bg.png')" }}>
-      
-      {/* Navbar */}
+    <div
+      className="flex flex-col min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: "url('/images/bg.png')" }}
+    >
+      {/* Header */}
       <header className="fixed top-0 w-full bg-[#fdf6e3] shadow-md z-50">
         <div className="container mx-auto flex items-center justify-between p-4">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/images/logo.png" width={40} height={40} alt="Logo" />
             <span className="font-bold text-gray-800">Meal of Hope</span>
           </Link>
-
           <nav className="flex gap-6">
             {['Home', 'About Us', 'Product'].map((text, idx) => {
               const href = text === 'Home' ? '/' : text === 'About Us' ? '/about' : '/product-list';
@@ -65,36 +60,29 @@ export default function ProductListPage() {
               );
             })}
           </nav>
-
           <div className="flex gap-4">
-            <Link href="/order" className="relative p-2 border rounded-full hover:bg-gray-100 transition-colors">
-              🛒
-            </Link>
-            <Link href="/login" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-4 py-2 rounded-full transition">
-              Sign In
-            </Link>
+            <Link href="/order" className="relative p-2 border rounded-full hover:bg-gray-100 transition-colors duration-200 ease-in-out">🛒</Link>
+            <Link href="/login" className="bg-yellow-400 hover:bg-yellow-500 transition-colors duration-200 ease-in-out text-white font-bold px-4 py-2 rounded-full">Sign In</Link>
           </div>
         </div>
       </header>
 
+      {/* Spacer */}
       <div className="h-20" />
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-6 flex-grow">
-        
+      {/* Main */}
+      <main className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 px-4 py-8 flex-grow">
         {/* Sidebar */}
-        <aside className="md:w-1/4 w-full bg-white rounded-xl shadow p-4">
+        <aside className="w-full md:w-[300px] bg-white rounded-xl shadow p-4">
           <h2 className="text-lg font-bold text-gray-700 mb-4">ค้นหา / หมวดหมู่</h2>
 
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="ค้นหาสินค้า..."
-              className="w-full border rounded px-3 py-2 text-sm focus:outline-none"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="ค้นหาสินค้า..."
+            className="w-full border rounded px-3 py-2 text-sm mb-4 focus:outline-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
 
           <div className="flex flex-col gap-2">
             {categories.map((cat, idx) => (
@@ -111,7 +99,6 @@ export default function ProductListPage() {
                 {cat.label}
               </button>
             ))}
-
             {selectedCategory && (
               <button
                 onClick={() => setSelectedCategory(null)}
@@ -124,14 +111,14 @@ export default function ProductListPage() {
         </aside>
 
         {/* Product Grid */}
-        <section className="md:w-3/4 w-full">
+        <section className="flex-1">
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((item) => (
-                <div
+                <Link
                   key={item.id}
-                  className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 cursor-pointer flex flex-col justify-between"
-                  onClick={() => handleSelectProduct(String(item.id))}
+                  href={`/product-detail?product=${item.id}`}
+                  className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
                 >
                   <div className="flex justify-center items-center h-32">
                     <Image src={item.image} alt={item.name} width={100} height={100} className="object-contain" />
@@ -141,10 +128,10 @@ export default function ProductListPage() {
                     <p className="text-sm text-gray-600">{item.caption}</p>
                     <p className="font-bold text-yellow-500 mt-2">฿ {item.price.toLocaleString()}</p>
                   </div>
-                  <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-full">
+                  <span className="mt-4 text-center bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-full">
                     เลือกซื้อ
-                  </button>
-                </div>
+                  </span>
+                </Link>
               ))}
             </div>
           ) : (
@@ -153,19 +140,14 @@ export default function ProductListPage() {
         </section>
       </main>
 
-      {/* Popup Modal */}
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
-      )}
-
       {/* Footer */}
-      <footer className="bg-gray-100 py-6">
+      <footer className="bg-gray-100 py-6 w-full mt-auto">
         <div className="flex justify-center gap-2 mb-4">
           {[1, 2, 3, 4].map((_, idx) => (
             <span key={idx} className="w-4 h-4 bg-gray-400 rounded-full inline-block"></span>
           ))}
         </div>
-        <div className="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-gray-600">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center text-gray-600">
           <span>About us</span>
           <a href="#" className="hover:underline mt-2 sm:mt-0">Back to top ↑</a>
         </div>
